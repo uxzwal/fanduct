@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FanDuct - The Sympathetic Nervous System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -67,15 +66,15 @@
                 <i class="fas fa-music mr-2 text-cyan-400"></i> Sound Pads
             </h2>
             <div class="grid grid-cols-3 gap-2 mb-4">
-                <button onclick="selectSound('BOO')" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
-                <button onclick="selectSound('WAVE')" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE</button>
-                <button onclick="selectSound('OLE')" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
-                <button onclick="selectSound('DRUM')" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
-                <button onclick="selectSound('WHISTLE')" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
-                <button onclick="selectSound('CHANT1')" class="sound-pad bg-pink-600 hover:bg-pink-700 rounded font-bold text-sm py-3">CHANT1</button>
-                <button onclick="selectSound('CHANT2')" class="sound-pad bg-indigo-600 hover:bg-indigo-700 rounded font-bold text-sm py-3">CHANT2</button>
-                <button onclick="selectSound('AIRHORN')" class="sound-pad bg-orange-600 hover:bg-orange-700 rounded font-bold text-sm py-3">AIR HORN</button>
-                <button onclick="selectSound('SILENCE')" class="sound-pad bg-gray-600 hover:bg-gray-700 rounded font-bold text-sm py-3">SILENCE</button>
+                <button onclick="selectSound('BOO', event)" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
+                <button onclick="selectSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE</button>
+                <button onclick="selectSound('OLE', event)" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
+                <button onclick="selectSound('DRUM', event)" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
+                <button onclick="selectSound('WHISTLE', event)" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
+                <button onclick="selectSound('CHANT1', event)" class="sound-pad bg-pink-600 hover:bg-pink-700 rounded font-bold text-sm py-3">CHANT1</button>
+                <button onclick="selectSound('CHANT2', event)" class="sound-pad bg-indigo-600 hover:bg-indigo-700 rounded font-bold text-sm py-3">CHANT2</button>
+                <button onclick="selectSound('AIR HORN', event)" class="sound-pad bg-orange-600 hover:bg-orange-700 rounded font-bold text-sm py-3">AIR HORN</button>
+                <button onclick="selectSound('SILENCE', event)" class="sound-pad bg-gray-600 hover:bg-gray-700 rounded font-bold text-sm py-3">SILENCE</button>
             </div>
             <div class="text-sm text-gray-300 mb-2">Selected: <span id="selectedSound" class="font-bold text-cyan-400">None</span></div>
             <div id="soundTagsList" class="text-xs text-gray-400 max-h-24 overflow-y-auto bg-slate-900 rounded p-2"></div>
@@ -165,7 +164,12 @@
     </div>
 
     <script>
-        // ===== STATE & STORAGE =====
+        // ===== CONSTANTS & STATE =====
+        const EMOTION_UPDATE_INTERVAL = 5000;
+        const STORYLINE_UPDATE_INTERVAL = 30000;
+        const PREDICTION_RESOLUTION_DELAY = 10000;
+        const FIELD_UPDATE_INTERVAL = 200;
+
         let state = {
             momentum: parseInt(localStorage.getItem('momentum')) || 0,
             emotions: JSON.parse(localStorage.getItem('emotions')) || [],
@@ -174,8 +178,11 @@
             selectedSound: null,
             isListening: false,
             hapticsEnabled: false,
+            emotionInterval: null,
+            hapticInterval: null,
+            fieldInterval: null,
             currentStoryline: 0,
-            ballPos: { x: 50, y: 50 }
+            ballPos: null
         };
 
         const storylines = ['TENSION BUILD', 'CLIMAX', 'RELIEF'];
@@ -188,13 +195,23 @@
         // ===== 1. EMOTION SYNC ENGINE =====
         function startEmotionSync() {
             state.isListening = !state.isListening;
-            if (!state.isListening) return;
-            const interval = setInterval(() => {
-                if (!state.isListening) { clearInterval(interval); return; }
-                const spike = Math.floor(Math.random() * 100);
-                state.emotions.push({ val: spike, time: Date.now() });
-                updateEmotionVisualization();
-            }, 5000);
+            if (state.isListening) {
+                // Clear any existing interval
+                if (state.emotionInterval) clearInterval(state.emotionInterval);
+                state.emotionInterval = setInterval(() => {
+                    if (!state.isListening) { 
+                        clearInterval(state.emotionInterval);
+                        state.emotionInterval = null;
+                        return;
+                    }
+                    const spike = Math.floor(Math.random() * 100);
+                    state.emotions.push({ val: spike, time: Date.now() });
+                    updateEmotionVisualization();
+                }, EMOTION_UPDATE_INTERVAL);
+            } else if (state.emotionInterval) {
+                clearInterval(state.emotionInterval);
+                state.emotionInterval = null;
+            }
         }
 
         function updateEmotionVisualization() {
@@ -218,11 +235,11 @@
         }
 
         // ===== 2. AUGMENTED AUDIO CANVAS =====
-        function selectSound(sound) {
+        function selectSound(sound, evt) {
             state.selectedSound = sound;
             document.getElementById('selectedSound').textContent = sound;
             document.querySelectorAll('.sound-pad').forEach(p => p.classList.remove('active'));
-            event.target.classList.add('active');
+            if (evt && evt.target) evt.target.classList.add('active');
         }
 
         function playSound(sound) {
@@ -233,8 +250,8 @@
             gain.connect(audioCtx.destination);
 
             const freqs = {
-                'BOO': 100, 'WAVE': 440, 'OLE': 528, 'DRUM': 80,
-                'WHISTLE': 800, 'CHANT1': 220, 'CHANT2': 330, 'AIRHORN': 1200
+                'BOO': 100, 'WAVE CLAP': 440, 'OLE': 528, 'DRUM': 80,
+                'WHISTLE': 800, 'CHANT1': 220, 'CHANT2': 330, 'AIR HORN': 1200
             };
 
             if (freqs[sound]) {
@@ -254,6 +271,11 @@
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
 
+            // Initialize ball position on first draw
+            if (!state.ballPos || state.ballPos.x === null) {
+                state.ballPos = { x: canvas.width / 2, y: canvas.height / 2 };
+            }
+
             // Draw field
             ctx.fillStyle = '#1b4d3e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -266,11 +288,14 @@
             ctx.lineTo(canvas.width / 2, canvas.height - 10);
             ctx.stroke();
 
-            // Draw players
-            for (let i = 0; i < 11; i++) {
+            // Draw players with responsive positioning
+            const playerCount = 11;
+            for (let i = 0; i < playerCount; i++) {
                 ctx.fillStyle = i < 6 ? '#ff0000' : '#0000ff';
                 ctx.beginPath();
-                ctx.arc(50 + i * 30, 50 + Math.sin(Date.now() / 500 + i) * 15, 4, 0, Math.PI * 2);
+                const xPos = (canvas.width / (playerCount + 1)) * (i + 1);
+                const yPos = (canvas.height / 2) + Math.sin(Date.now() / 500 + i) * 15;
+                ctx.arc(xPos, yPos, 4, 0, Math.PI * 2);
                 ctx.fill();
             }
 
@@ -285,7 +310,7 @@
             ctx.fill();
         }
 
-        setInterval(drawField, 200);
+        state.fieldInterval = setInterval(drawField, FIELD_UPDATE_INTERVAL);
 
         // ===== 3. COLLECTIVE DECISION MOMENTS =====
         function triggerDecisionMoment() {
@@ -330,7 +355,7 @@
                     state.momentum += 10;
                     saveMomentum();
                 }
-            }, 10000);
+            }, PREDICTION_RESOLUTION_DELAY);
         }
 
         // ===== 5. REALITY REWIND COLLAGE =====
@@ -356,9 +381,16 @@
                 waveform.appendChild(bar);
             }
 
-            // Generate download link
+            // Generate download link with blob URL management
             captureCanvas.toBlob(blob => {
-                document.getElementById('downloadLink').href = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById('downloadLink');
+                // Revoke previous URL if it exists
+                const oldUrl = downloadLink.href;
+                if (oldUrl && oldUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(oldUrl);
+                }
+                // Create and set new URL
+                downloadLink.href = URL.createObjectURL(blob);
             });
         }
 
@@ -366,12 +398,24 @@
         function toggleHaptics() {
             state.hapticsEnabled = !state.hapticsEnabled;
             document.getElementById('hapticToggle').textContent = state.hapticsEnabled ? 'Disable' : 'Enable';
-            if (state.hapticsEnabled) startHapticLoop();
+            if (state.hapticsEnabled) {
+                startHapticLoop();
+            } else if (state.hapticInterval) {
+                clearInterval(state.hapticInterval);
+                state.hapticInterval = null;
+            }
         }
 
         function startHapticLoop() {
-            const interval = setInterval(() => {
-                if (!state.hapticsEnabled) { clearInterval(interval); return; }
+            // Clear any existing interval
+            if (state.hapticInterval) clearInterval(state.hapticInterval);
+            
+            state.hapticInterval = setInterval(() => {
+                if (!state.hapticsEnabled) { 
+                    clearInterval(state.hapticInterval);
+                    state.hapticInterval = null;
+                    return;
+                }
                 state.currentStoryline = (state.currentStoryline + 1) % 3;
                 document.getElementById('storylineArc').textContent = storylines[state.currentStoryline];
 
@@ -383,7 +427,7 @@
                     };
                     navigator.vibrate(patterns[state.currentStoryline]);
                 }
-            }, 30000);
+            }, STORYLINE_UPDATE_INTERVAL);
         }
 
         // ===== SOUND TAGS & STORAGE =====
@@ -405,7 +449,19 @@
             document.getElementById('momentumDisplay').textContent = state.momentum;
         }
 
-        // ===== INIT =====
+        // ===== CLEANUP & INIT =====
+        window.addEventListener('beforeunload', () => {
+            // Clean up intervals
+            if (state.emotionInterval) clearInterval(state.emotionInterval);
+            if (state.hapticInterval) clearInterval(state.hapticInterval);
+            if (state.fieldInterval) clearInterval(state.fieldInterval);
+            // Revoke blob URLs
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink && downloadLink.href && downloadLink.href.startsWith('blob:')) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('momentumDisplay').textContent = state.momentum;
             updateEmotionVisualization();
