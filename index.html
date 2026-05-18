@@ -304,6 +304,17 @@
         const STORYLINE_UPDATE_INTERVAL = 30000;
         const PREDICTION_RESOLUTION_DELAY = 10000;
         const FIELD_UPDATE_INTERVAL = 200;
+        
+        // Feature constants
+        const MOMENTUM_MAX = 100;
+        const MOMENTUM_MATCH_THRESHOLD = 15;
+        const ANGER_HIGH_THRESHOLD = 70;
+        const ANGER_MEDIUM_THRESHOLD = 50;
+        const REST_DAYS_HIGH = 2;
+        const REST_DAYS_LOW = 1;
+        const GAME_MOMENTUM_MIN = 30;
+        const GAME_MOMENTUM_MAX = 70;
+        const MOMENTUM_VARIATION = 20;
 
         let state = {
             momentum: parseInt(localStorage.getItem('momentum')) || 0,
@@ -618,7 +629,7 @@
 
         // ===== 7. MOMENTUM MIRROR =====
         function increaseFanMomentum() {
-            state.fanMomentum = Math.min(state.fanMomentum + 15, 100);
+            state.fanMomentum = Math.min(state.fanMomentum + 15, MOMENTUM_MAX);
             document.getElementById('fanMomentum').textContent = state.fanMomentum + '%';
             state.matchStats.tapCount++;
         }
@@ -628,9 +639,9 @@
             state.gameMomentum = Math.floor(Math.random() * 100);
             document.getElementById('gameMomentum').textContent = state.gameMomentum + '%';
             
-            // Check if momentum matches
+            // Check if momentum matches (within threshold)
             const diff = Math.abs(state.fanMomentum - state.gameMomentum);
-            if (diff < 15) {
+            if (diff < MOMENTUM_MATCH_THRESHOLD) {
                 triggerFlowState();
             }
         }
@@ -773,7 +784,8 @@
                     
                     state.mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
                     state.mediaRecorder.onstop = () => {
-                        const blob = new Blob(chunks, { type: 'audio/wav' });
+                        // Use webm format which is what MediaRecorder produces
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
                         const url = URL.createObjectURL(blob);
                         const voiceNote = {
                             url: url,
@@ -781,6 +793,7 @@
                             timeStr: new Date().toLocaleTimeString()
                         };
                         state.voiceNotes.push(voiceNote);
+                        // Store only metadata to localStorage (actual audio data is too large)
                         localStorage.setItem('voiceNotes', JSON.stringify(state.voiceNotes.map(v => ({timestamp: v.timestamp, timeStr: v.timeStr}))));
                         updateVoiceNotesList();
                         showNotification('Voice note saved! 🎙️');
@@ -816,7 +829,7 @@
             list.innerHTML = state.voiceNotes.map((v, idx) => 
                 `<div class="text-xs text-gray-300 py-1 flex justify-between items-center">
                     <span>Note ${idx + 1}: ${v.timeStr}</span>
-                    <button onclick="playVoiceNote(${idx})" class="text-green-400 hover:text-green-300">
+                    <button onclick="playVoiceNote(${idx})" class="text-green-400 hover:text-green-300" ${!v.url ? 'disabled' : ''}>
                         <i class="fas fa-play-circle"></i>
                     </button>
                 </div>`
@@ -827,6 +840,8 @@
             if (idx < state.voiceNotes.length && state.voiceNotes[idx].url) {
                 const audio = new Audio(state.voiceNotes[idx].url);
                 audio.play().catch(() => showNotification('Could not play voice note'));
+            } else {
+                showNotification('Voice note unavailable - only stored during this session');
             }
         }
 
@@ -874,10 +889,10 @@
             const heartRateSpikes = Math.floor(Math.random() * 20) + 5;
             const angerPeak = Math.floor(Math.random() * 100);
             const joyPeak = Math.floor(Math.random() * 100);
-            const restDays = angerPeak > 70 ? 2 : 1;
-            const suggestion = angerPeak > 80 
+            const restDays = angerPeak > ANGER_HIGH_THRESHOLD ? REST_DAYS_HIGH : REST_DAYS_LOW;
+            const suggestion = angerPeak > ANGER_HIGH_THRESHOLD 
                 ? 'You need serious recovery 🛋️' 
-                : angerPeak > 50 
+                : angerPeak > ANGER_MEDIUM_THRESHOLD 
                 ? 'Watch highlights with friends 🍿' 
                 : 'You handled this well! 💪';
             
@@ -955,7 +970,7 @@ Tap Frenzy: ${state.matchStats.tapCount} taps\n
             
             // Initialize game momentum changes
             setInterval(() => {
-                state.gameMomentum = Math.max(30, Math.min(70, state.gameMomentum + (Math.random() - 0.5) * 20));
+                state.gameMomentum = Math.max(GAME_MOMENTUM_MIN, Math.min(GAME_MOMENTUM_MAX, state.gameMomentum + (Math.random() - 0.5) * MOMENTUM_VARIATION));
                 document.getElementById('gameMomentum').textContent = Math.floor(state.gameMomentum) + '%';
             }, 5000);
             

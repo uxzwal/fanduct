@@ -69,16 +69,16 @@ A complete, standalone HTML/CSS/JS web application that redefines the second-scr
 ### 10. **Time-Travel Comments** ⏳
 - Record 5-second voice notes during live match
 - Timestamp each voice note with match time
-- Playback voice notes during highlight rewatches
-- Voice notes automatically play at their recorded moment
-- localStorage persistence for voice note metadata
+- Playback voice notes on demand during session (persists while browser tab is open)
+- Voice note metadata (timestamps) are saved to localStorage for reference
+- Audio data persists during current session only (not stored across page reloads)
 
 ### 11. **Crowd DJ Mode** 🎧
 - Apply audio filters to stadium sound: Bass boost, Echo, Remove commentator
-- Build collaborative playlists with other fans
-- "Ole Ole" crowd sync button for group cheering
-- Toggle active filters in real-time
-- Momentum rewards for crowd engagement
+- Toggle filters individually to build custom audio experiences
+- "Ole Ole" crowd sync button for simulated group cheering
+- Track active filters in real-time UI
+- Momentum rewards for crowd engagement interactions
 
 ### 12. **Post-Match Therapy** 🛋️
 - Auto-generate "Fan Wound Report" after match ends
@@ -111,8 +111,8 @@ A complete, standalone HTML/CSS/JS web application that redefines the second-scr
 | 7 | Momentum Mirror | Your momentum syncs with game → fireworks & special haptics |
 | 8 | Rival Room | Hear rival fans boo, then hit "Boo Back" for counter-cheer |
 | 9 | Instant Ref Cam | Be the VAR judge – decide if it's a foul, dive, or unclear |
-| 10 | Time-Travel Comments | Record voice notes now, hear them during future highlight rewatches |
-| 11 | Crowd DJ Mode | Modify stadium audio (bass boost, echo, remove commentator) + group cheers |
+| 10 | Time-Travel Comments | Record voice notes now, play them back during current session |
+| 11 | Crowd DJ Mode | Toggle audio filters and sync crowd cheers locally |
 | 12 | Post-Match Therapy | Get an emotional wound report showing how much the match destroyed you |
 
 ## Quick Start
