@@ -69,9 +69,9 @@ A complete, standalone HTML/CSS/JS web application that redefines the second-scr
 ### 10. **Time-Travel Comments** ⏳
 - Record 5-second voice notes during live match
 - Timestamp each voice note with match time
-- Playback voice notes on demand during session (persists while browser tab is open)
+- Playback voice notes on demand during session (stored in memory)
 - Voice note metadata (timestamps) are saved to localStorage for reference
-- Audio data persists during current session only (not stored across page reloads)
+- Audio data persists only while browser tab is open (lost on page reload/close)
 
 ### 11. **Crowd DJ Mode** 🎧
 - Apply audio filters to stadium sound: Bass boost, Echo, Remove commentator

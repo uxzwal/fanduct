@@ -314,6 +314,9 @@
         const REST_DAYS_LOW = 1;
         const GAME_MOMENTUM_MIN = 30;
         const GAME_MOMENTUM_MAX = 70;
+        // MOMENTUM_VARIATION controls how much the game momentum changes each update
+        // Value of 20 means random change between -10 and +10 on each 5-second tick
+        // This creates realistic momentum fluctuations bounded between GAME_MOMENTUM_MIN and GAME_MOMENTUM_MAX
         const MOMENTUM_VARIATION = 20;
 
         let state = {
@@ -635,8 +638,8 @@
         }
 
         function startMomentumMatch() {
-            // Simulate game momentum changes
-            state.gameMomentum = Math.floor(Math.random() * 100);
+            // Simulate game momentum changes using the defined bounds
+            state.gameMomentum = Math.floor(Math.random() * (GAME_MOMENTUM_MAX - GAME_MOMENTUM_MIN + 1)) + GAME_MOMENTUM_MIN;
             document.getElementById('gameMomentum').textContent = state.gameMomentum + '%';
             
             // Check if momentum matches (within threshold)
@@ -829,7 +832,7 @@
             list.innerHTML = state.voiceNotes.map((v, idx) => 
                 `<div class="text-xs text-gray-300 py-1 flex justify-between items-center">
                     <span>Note ${idx + 1}: ${v.timeStr}</span>
-                    <button onclick="playVoiceNote(${idx})" class="text-green-400 hover:text-green-300" ${!v.url ? 'disabled' : ''}>
+                    <button onclick="playVoiceNote(${idx})" class="text-green-400 hover:text-green-300" ${!v.url ? 'disabled aria-label="Voice note unavailable - session expired"' : 'aria-label="Play voice note"'}>
                         <i class="fas fa-play-circle"></i>
                     </button>
                 </div>`
@@ -847,10 +850,15 @@
 
         // ===== 11. CROWD DJ MODE =====
         function applyAudioFilter(filter) {
-            if (state.activeFilters.includes(filter)) {
-                state.activeFilters = state.activeFilters.filter(f => f !== filter);
+            if (filter === 'remove') {
+                // 'Remove' clears all filters instead of being added
+                state.activeFilters = [];
             } else {
-                state.activeFilters.push(filter);
+                if (state.activeFilters.includes(filter)) {
+                    state.activeFilters = state.activeFilters.filter(f => f !== filter);
+                } else {
+                    state.activeFilters.push(filter);
+                }
             }
             updateFilterDisplay();
             playSound('CHANT1');
