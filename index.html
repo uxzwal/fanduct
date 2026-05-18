@@ -152,6 +152,141 @@
             </button>
         </div>
 
+        <!-- 7. Momentum Mirror -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-purple-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-mirror mr-2 text-purple-400"></i> Momentum Mirror
+            </h2>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-900 rounded p-3 text-center">
+                    <p class="text-xs text-gray-400">Game Momentum</p>
+                    <p id="gameMomentum" class="text-2xl font-bold text-purple-400">50%</p>
+                </div>
+                <div class="bg-slate-900 rounded p-3 text-center">
+                    <p class="text-xs text-gray-400">Fan Momentum</p>
+                    <p id="fanMomentum" class="text-2xl font-bold text-pink-400">0%</p>
+                </div>
+            </div>
+            <div class="flex gap-2 mb-4">
+                <button onclick="increaseFanMomentum()" class="flex-1 bg-purple-600 hover:bg-purple-700 py-2 rounded font-bold text-sm">
+                    <i class="fas fa-up mr-1"></i> Tap It!
+                </button>
+                <button onclick="startMomentumMatch()" class="flex-1 bg-pink-600 hover:bg-pink-700 py-2 rounded font-bold text-sm">
+                    <i class="fas fa-sync mr-1"></i> Sync
+                </button>
+            </div>
+            <div id="momentumMatch" class="hidden text-center">
+                <p class="text-lg font-bold text-yellow-400">🎆 FLOW STATE! 🎆</p>
+            </div>
+        </div>
+
+        <!-- 8. Rival Room -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-orange-600">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-comments mr-2 text-orange-400"></i> Rival Room
+            </h2>
+            <div class="mb-3">
+                <label class="text-sm text-gray-300 mb-2 block">Choose Rival Team:</label>
+                <select id="rivalTeam" class="w-full bg-slate-900 text-white rounded p-2 mb-3">
+                    <option value="">Select team...</option>
+                    <option value="A">Team A</option>
+                    <option value="B">Team B</option>
+                    <option value="C">Team C</option>
+                </select>
+            </div>
+            <button onclick="listenToRivalFans()" class="w-full bg-orange-600 hover:bg-orange-700 py-2 rounded font-bold mb-3">
+                <i class="fas fa-volume-up mr-1"></i> Hear Rival Fans
+            </button>
+            <div id="rivalReactionDisplay" class="hidden bg-slate-900 rounded p-3 mb-3 text-center">
+                <p id="rivalReactionText" class="text-lg font-bold text-orange-300">BOO! 📢</p>
+            </div>
+            <button onclick="booBack()" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">
+                <i class="fas fa-hand-fist mr-1"></i> Boo Back!
+            </button>
+        </div>
+
+        <!-- 9. Instant Ref Cam -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-cyan-600">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-video mr-2 text-cyan-400"></i> Instant Ref Cam
+            </h2>
+            <button onclick="triggerRefCam()" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold mb-4">
+                <i class="fas fa-play-circle mr-1"></i> Controversial Play
+            </button>
+            <div id="refCamOverlay" class="hidden fixed inset-0 bg-black bg-opacity-85 flex items-center justify-center z-50 p-4">
+                <div class="bg-slate-900 rounded-lg p-6 max-w-md border-2 border-cyan-600">
+                    <p class="text-center text-lg font-bold mb-4">⏸️ AI Slow-Mo</p>
+                    <div id="refCamDisplay" class="bg-slate-800 rounded h-32 mb-4 flex items-center justify-center text-gray-400">
+                        [Heatmap Visualization]
+                    </div>
+                    <p class="text-center text-sm text-gray-300 mb-4">What do you see?</p>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="refVote('clear')" class="bg-green-600 hover:bg-green-700 py-2 rounded font-bold">✅ Clear Foul</button>
+                        <button onclick="refVote('dive')" class="bg-yellow-600 hover:bg-yellow-700 py-2 rounded font-bold">🤔 Dive</button>
+                        <button onclick="refVote('unsure')" class="bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">❓ Unsure</button>
+                    </div>
+                </div>
+            </div>
+            <div id="refCamResults" class="text-sm text-gray-400"></div>
+        </div>
+
+        <!-- 10. Time-Travel Comments -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-green-600">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-hourglass mr-2 text-green-400"></i> Time-Travel Comments
+            </h2>
+            <button onclick="startVoiceRecording()" id="recordBtn" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-bold mb-3">
+                <i class="fas fa-microphone mr-1"></i> Record Voice Note (5s)
+            </button>
+            <div id="recordingStatus" class="text-sm text-gray-400 text-center mb-3"></div>
+            <div id="voiceNotesList" class="bg-slate-900 rounded p-3 max-h-32 overflow-y-auto">
+                <p class="text-xs text-gray-400">No voice notes yet</p>
+            </div>
+        </div>
+
+        <!-- 11. Crowd DJ Mode -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-indigo-600">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-compact-disc mr-2 text-indigo-400"></i> Crowd DJ Mode
+            </h2>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="applyAudioFilter('bass')" class="bg-indigo-600 hover:bg-indigo-700 py-2 rounded text-xs font-bold">
+                    <i class="fas fa-wave-square mr-1"></i> Bass
+                </button>
+                <button onclick="applyAudioFilter('echo')" class="bg-indigo-600 hover:bg-indigo-700 py-2 rounded text-xs font-bold">
+                    <i class="fas fa-wave-square mr-1"></i> Echo
+                </button>
+                <button onclick="applyAudioFilter('remove')" class="bg-indigo-600 hover:bg-indigo-700 py-2 rounded text-xs font-bold">
+                    <i class="fas fa-volume-mute mr-1"></i> Remove
+                </button>
+            </div>
+            <div id="activeFilters" class="text-sm text-gray-300 mb-3">
+                <p>Active Filters: <span id="filtersList" class="text-indigo-400">None</span></p>
+            </div>
+            <button onclick="crowdCheer()" class="w-full bg-pink-600 hover:bg-pink-700 py-2 rounded font-bold">
+                <i class="fas fa-music mr-1"></i> Ole Ole! 🎵
+            </button>
+        </div>
+
+        <!-- 12. Post-Match Therapy -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-rose-600">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-bandage mr-2 text-rose-400"></i> Post-Match Therapy
+            </h2>
+            <button onclick="generateWoundReport()" class="w-full bg-rose-600 hover:bg-rose-700 py-2 rounded font-bold mb-4">
+                <i class="fas fa-file-medical mr-1"></i> Generate Fan Wound Report
+            </button>
+            <div id="woundReportDisplay" class="hidden bg-slate-900 rounded p-4">
+                <h3 class="font-bold text-rose-300 mb-3">📋 Fan Wound Report</h3>
+                <div id="reportContent" class="text-sm text-gray-300 space-y-2">
+                    <!-- Report content will be generated here -->
+                </div>
+                <button onclick="shareWoundMeme()" class="w-full mt-3 bg-rose-600 hover:bg-rose-700 py-2 rounded font-bold text-sm">
+                    <i class="fas fa-share mr-1"></i> Share as Meme
+                </button>
+            </div>
+        </div>
+
         <!-- Leaderboard -->
         <div class="bg-slate-800 rounded-lg p-4 border-2 border-orange-500">
             <h2 class="text-lg font-bold mb-3 flex items-center">
@@ -169,6 +304,20 @@
         const STORYLINE_UPDATE_INTERVAL = 30000;
         const PREDICTION_RESOLUTION_DELAY = 10000;
         const FIELD_UPDATE_INTERVAL = 200;
+        
+        // Feature constants
+        const MOMENTUM_MAX = 100;
+        const MOMENTUM_MATCH_THRESHOLD = 15;
+        const ANGER_HIGH_THRESHOLD = 70;
+        const ANGER_MEDIUM_THRESHOLD = 50;
+        const REST_DAYS_HIGH = 2;
+        const REST_DAYS_LOW = 1;
+        const GAME_MOMENTUM_MIN = 30;
+        const GAME_MOMENTUM_MAX = 70;
+        // MOMENTUM_VARIATION controls how much the game momentum changes each update
+        // Value of 20 means random change between -10 and +10 on each 5-second tick
+        // This creates realistic momentum fluctuations bounded between GAME_MOMENTUM_MIN and GAME_MOMENTUM_MAX
+        const MOMENTUM_VARIATION = 20;
 
         let state = {
             momentum: parseInt(localStorage.getItem('momentum')) || 0,
@@ -183,7 +332,23 @@
             fieldInterval: null,
             currentStoryline: 0,
             ballPos: null,
-            audioCtx: null
+            audioCtx: null,
+            // New state for features 7-12
+            gameMomentum: 50,
+            fanMomentum: 0,
+            fanMomentumInterval: null,
+            rivalTeam: '',
+            refDecisions: JSON.parse(localStorage.getItem('refDecisions')) || [],
+            voiceNotes: JSON.parse(localStorage.getItem('voiceNotes')) || [],
+            mediaRecorder: null,
+            recordingStartTime: null,
+            activeFilters: [],
+            matchStats: {
+                heartRateSpikes: 0,
+                angriestMoment: 0,
+                joyfulMoment: 0,
+                tapCount: 0
+            }
         };
 
         const storylines = ['TENSION BUILD', 'CLIMAX', 'RELIEF'];
@@ -465,6 +630,329 @@
             document.getElementById('momentumDisplay').textContent = state.momentum;
         }
 
+        // ===== 7. MOMENTUM MIRROR =====
+        function increaseFanMomentum() {
+            state.fanMomentum = Math.min(state.fanMomentum + 15, MOMENTUM_MAX);
+            document.getElementById('fanMomentum').textContent = state.fanMomentum + '%';
+            state.matchStats.tapCount++;
+        }
+
+        function startMomentumMatch() {
+            // Simulate game momentum changes using the defined bounds
+            state.gameMomentum = Math.floor(Math.random() * (GAME_MOMENTUM_MAX - GAME_MOMENTUM_MIN + 1)) + GAME_MOMENTUM_MIN;
+            document.getElementById('gameMomentum').textContent = state.gameMomentum + '%';
+            
+            // Check if momentum matches (within threshold)
+            const diff = Math.abs(state.fanMomentum - state.gameMomentum);
+            if (diff < MOMENTUM_MATCH_THRESHOLD) {
+                triggerFlowState();
+            }
+        }
+
+        function triggerFlowState() {
+            const matchEl = document.getElementById('momentumMatch');
+            matchEl.classList.remove('hidden');
+            
+            // Trigger vibration and animation
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+            
+            // Trigger fireworks effect
+            triggerFireworks();
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                matchEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        function triggerFireworks() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const emoji = ['🎆', '✨', '🎇'][Math.floor(Math.random() * 3)];
+                    const fw = document.createElement('div');
+                    fw.textContent = emoji;
+                    fw.style.position = 'fixed';
+                    fw.style.left = Math.random() * 100 + '%';
+                    fw.style.top = Math.random() * 50 + '%';
+                    fw.style.fontSize = '2rem';
+                    fw.style.animation = 'fadeOut 2s forwards';
+                    fw.style.pointerEvents = 'none';
+                    document.body.appendChild(fw);
+                    setTimeout(() => fw.remove(), 2000);
+                }, i * 200);
+            }
+        }
+
+        // ===== 8. RIVAL ROOM =====
+        function listenToRivalFans() {
+            const team = document.getElementById('rivalTeam').value;
+            if (!team) {
+                showNotification('Choose a rival team first!');
+                return;
+            }
+            state.rivalTeam = team;
+            const reactions = ['BOO! 📢', 'Hisssss 🐍', 'NAH NAH NAH! 🎵', 'YOU SUCK! 😤', 'OHHHHH! 😲'];
+            const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+            document.getElementById('rivalReactionText').textContent = reaction;
+            document.getElementById('rivalReactionDisplay').classList.remove('hidden');
+            
+            // Play boo sound
+            playSound('BOO');
+            
+            setTimeout(() => {
+                document.getElementById('rivalReactionDisplay').classList.add('hidden');
+            }, 3000);
+        }
+
+        function booBack() {
+            if (!state.rivalTeam) {
+                showNotification('Choose a rival team first!');
+                return;
+            }
+            showNotification('COUNTER-CHEER! 🔥');
+            playSound('CHANT1');
+            playSound('AIR HORN');
+            
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate([100, 100, 100]);
+            
+            state.momentum += 5;
+            saveMomentum();
+        }
+
+        // ===== 9. INSTANT REF CAM =====
+        function triggerRefCam() {
+            document.getElementById('refCamOverlay').classList.remove('hidden');
+            
+            // Simulate heatmap animation
+            const display = document.getElementById('refCamDisplay');
+            display.style.background = 'linear-gradient(135deg, #0000ff 0%, #ff0000 100%)';
+            display.textContent = '🔥 Heatmap Analysis';
+        }
+
+        function refVote(choice) {
+            const decision = {
+                choice: choice,
+                time: Date.now(),
+                timestamp: new Date().toLocaleTimeString()
+            };
+            state.refDecisions.push(decision);
+            localStorage.setItem('refDecisions', JSON.stringify(state.refDecisions));
+            
+            document.getElementById('refCamOverlay').classList.add('hidden');
+            
+            const msgs = {
+                'clear': '✅ Added to Ref Score',
+                'dive': '🤔 Dive Vote Recorded',
+                'unsure': '❓ Marked as Controversial'
+            };
+            showNotification(msgs[choice]);
+            
+            // Update results display
+            updateRefResults();
+        }
+
+        function updateRefResults() {
+            const results = document.getElementById('refCamResults');
+            const total = state.refDecisions.length;
+            const clear = state.refDecisions.filter(d => d.choice === 'clear').length;
+            const dive = state.refDecisions.filter(d => d.choice === 'dive').length;
+            const unsure = state.refDecisions.filter(d => d.choice === 'unsure').length;
+            
+            results.innerHTML = `<div class="text-xs space-y-1">
+                <p>Clear Foul: ${clear}/${total}</p>
+                <p>Dive: ${dive}/${total}</p>
+                <p>Unsure: ${unsure}/${total}</p>
+            </div>`;
+        }
+
+        // ===== 10. TIME-TRAVEL COMMENTS =====
+        function startVoiceRecording() {
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordingStatus');
+            
+            if (state.mediaRecorder && state.mediaRecorder.state === 'recording') {
+                // Stop recording
+                state.mediaRecorder.stop();
+                btn.innerHTML = '<i class="fas fa-microphone mr-1"></i> Record Voice Note (5s)';
+                status.textContent = '';
+                return;
+            }
+            
+            // Request microphone access
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    state.mediaRecorder = new MediaRecorder(stream);
+                    const chunks = [];
+                    
+                    state.mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                    state.mediaRecorder.onstop = () => {
+                        // Use webm format which is what MediaRecorder produces
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const voiceNote = {
+                            url: url,
+                            timestamp: Date.now(),
+                            timeStr: new Date().toLocaleTimeString()
+                        };
+                        state.voiceNotes.push(voiceNote);
+                        // Store only metadata to localStorage (actual audio data is too large)
+                        localStorage.setItem('voiceNotes', JSON.stringify(state.voiceNotes.map(v => ({timestamp: v.timestamp, timeStr: v.timeStr}))));
+                        updateVoiceNotesList();
+                        showNotification('Voice note saved! 🎙️');
+                        
+                        // Stop all tracks
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    state.mediaRecorder.start();
+                    btn.innerHTML = '<i class="fas fa-stop mr-1"></i> Stop Recording';
+                    status.textContent = 'Recording... (5s max)';
+                    
+                    // Auto-stop after 5 seconds
+                    setTimeout(() => {
+                        if (state.mediaRecorder && state.mediaRecorder.state === 'recording') {
+                            state.mediaRecorder.stop();
+                            btn.innerHTML = '<i class="fas fa-microphone mr-1"></i> Record Voice Note (5s)';
+                            status.textContent = '';
+                        }
+                    }, 5000);
+                })
+                .catch(() => {
+                    showNotification('Mic access denied or unavailable');
+                });
+        }
+
+        function updateVoiceNotesList() {
+            const list = document.getElementById('voiceNotesList');
+            if (state.voiceNotes.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400">No voice notes yet</p>';
+                return;
+            }
+            list.innerHTML = state.voiceNotes.map((v, idx) => 
+                `<div class="text-xs text-gray-300 py-1 flex justify-between items-center">
+                    <span>Note ${idx + 1}: ${v.timeStr}</span>
+                    <button onclick="playVoiceNote(${idx})" class="text-green-400 hover:text-green-300" ${!v.url ? 'disabled aria-label="Voice note unavailable - session expired"' : 'aria-label="Play voice note"'}>
+                        <i class="fas fa-play-circle"></i>
+                    </button>
+                </div>`
+            ).join('');
+        }
+
+        function playVoiceNote(idx) {
+            if (idx < state.voiceNotes.length && state.voiceNotes[idx].url) {
+                const audio = new Audio(state.voiceNotes[idx].url);
+                audio.play().catch(() => showNotification('Could not play voice note'));
+            } else {
+                showNotification('Voice note unavailable - only stored during this session');
+            }
+        }
+
+        // ===== 11. CROWD DJ MODE =====
+        function applyAudioFilter(filter) {
+            if (filter === 'remove') {
+                // 'Remove' clears all filters instead of being added
+                state.activeFilters = [];
+            } else {
+                if (state.activeFilters.includes(filter)) {
+                    state.activeFilters = state.activeFilters.filter(f => f !== filter);
+                } else {
+                    state.activeFilters.push(filter);
+                }
+            }
+            updateFilterDisplay();
+            playSound('CHANT1');
+        }
+
+        function updateFilterDisplay() {
+            const filterNames = {
+                'bass': '🔊 Bass',
+                'echo': '🌊 Echo',
+                'remove': '🔇 Remove'
+            };
+            const display = state.activeFilters.length === 0 
+                ? 'None' 
+                : state.activeFilters.map(f => filterNames[f]).join(', ');
+            document.getElementById('filtersList').textContent = display;
+        }
+
+        function crowdCheer() {
+            showNotification('Ole Ole! 🎵🎉');
+            playSound('CHANT2');
+            playSound('AIR HORN');
+            
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50, 50, 50, 50]);
+            
+            state.momentum += 10;
+            saveMomentum();
+        }
+
+        // ===== 12. POST-MATCH THERAPY =====
+        function generateWoundReport() {
+            const report = document.getElementById('woundReportDisplay');
+            const content = document.getElementById('reportContent');
+            
+            // Simulate heart rate spikes
+            const heartRateSpikes = Math.floor(Math.random() * 20) + 5;
+            const angerPeak = Math.floor(Math.random() * 100);
+            const joyPeak = Math.floor(Math.random() * 100);
+            const restDays = angerPeak > ANGER_HIGH_THRESHOLD ? REST_DAYS_HIGH : REST_DAYS_LOW;
+            const suggestion = angerPeak > ANGER_HIGH_THRESHOLD 
+                ? 'You need serious recovery 🛋️' 
+                : angerPeak > ANGER_MEDIUM_THRESHOLD 
+                ? 'Watch highlights with friends 🍿' 
+                : 'You handled this well! 💪';
+            
+            content.innerHTML = `
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span>Heart Rate Spikes:</span>
+                        <span class="text-red-400">${heartRateSpikes}x 💓</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Angriest Moment:</span>
+                        <span class="text-orange-400">${angerPeak}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Joyful Moment:</span>
+                        <span class="text-green-400">${joyPeak}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Tap Activity:</span>
+                        <span class="text-purple-400">${state.matchStats.tapCount} taps</span>
+                    </div>
+                    <hr class="border-gray-600 my-2">
+                    <div class="text-center">
+                        <p class="font-bold text-yellow-400 mb-1">Suggestion:</p>
+                        <p>${suggestion}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-400">Recommended rest: ${restDays} day${restDays > 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+            `;
+            
+            report.classList.remove('hidden');
+        }
+
+        function shareWoundMeme() {
+            const meme = `🔥 THIS MATCH DESTROYED ME 🔥\n
+📊 Match Impact Report:\n
+Heart Rate Spikes: ${Math.floor(Math.random() * 20) + 5}x\n
+Anger Peak: ${Math.floor(Math.random() * 100)}%\n
+Tap Frenzy: ${state.matchStats.tapCount} taps\n
+\n⚠️ Recovery Time Needed: 1-2 days\n
+\n#FanDuct #FootballFanLife`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(meme).then(() => {
+                showNotification('Meme copied to clipboard! 📋');
+            }).catch(() => {
+                showNotification('Could not copy meme');
+            });
+        }
+
         // ===== CLEANUP & INIT =====
         window.addEventListener('beforeunload', () => {
             // Clean up intervals
@@ -482,9 +970,17 @@
             document.getElementById('momentumDisplay').textContent = state.momentum;
             updateEmotionVisualization();
             updateSoundTagsList();
+            updateVoiceNotesList();
+            updateRefResults();
             
             // Initialize field animation after DOM is ready
             state.fieldInterval = setInterval(drawField, FIELD_UPDATE_INTERVAL);
+            
+            // Initialize game momentum changes
+            setInterval(() => {
+                state.gameMomentum = Math.max(GAME_MOMENTUM_MIN, Math.min(GAME_MOMENTUM_MAX, state.gameMomentum + (Math.random() - 0.5) * MOMENTUM_VARIATION));
+                document.getElementById('gameMomentum').textContent = Math.floor(state.gameMomentum) + '%';
+            }, 5000);
             
             // Add click-to-play-sound on field
             document.getElementById('fieldCanvas').addEventListener('click', () => {
