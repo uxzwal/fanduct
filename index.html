@@ -67,7 +67,7 @@
             </h2>
             <div class="grid grid-cols-3 gap-2 mb-4">
                 <button onclick="selectSound('BOO', event)" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
-                <button onclick="selectSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE</button>
+                <button onclick="selectSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE CLAP</button>
                 <button onclick="selectSound('OLE', event)" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
                 <button onclick="selectSound('DRUM', event)" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
                 <button onclick="selectSound('WHISTLE', event)" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
@@ -238,8 +238,13 @@
         function selectSound(sound, evt) {
             state.selectedSound = sound;
             document.getElementById('selectedSound').textContent = sound;
-            document.querySelectorAll('.sound-pad').forEach(p => p.classList.remove('active'));
-            if (evt && evt.target) evt.target.classList.add('active');
+            // Update active state
+            const allPads = document.querySelectorAll('.sound-pad');
+            allPads.forEach(p => p.classList.remove('active'));
+            // Only add active class if event target is provided and valid
+            if (evt && evt.target && evt.target.classList) {
+                evt.target.classList.add('active');
+            }
         }
 
         function playSound(sound) {
@@ -272,7 +277,7 @@
             canvas.height = canvas.offsetHeight;
 
             // Initialize ball position on first draw
-            if (!state.ballPos || state.ballPos.x === null) {
+            if (!state.ballPos) {
                 state.ballPos = { x: canvas.width / 2, y: canvas.height / 2 };
             }
 
@@ -384,8 +389,8 @@
             // Generate download link with blob URL management
             captureCanvas.toBlob(blob => {
                 const downloadLink = document.getElementById('downloadLink');
-                // Revoke previous URL if it exists
                 const oldUrl = downloadLink.href;
+                // Only revoke if it's actually a blob URL (not "#")
                 if (oldUrl && oldUrl.startsWith('blob:')) {
                     URL.revokeObjectURL(oldUrl);
                 }
@@ -466,6 +471,9 @@
             document.getElementById('momentumDisplay').textContent = state.momentum;
             updateEmotionVisualization();
             updateSoundTagsList();
+            
+            // Initialize field animation after DOM is ready
+            state.fieldInterval = setInterval(drawField, FIELD_UPDATE_INTERVAL);
             
             // Add click-to-play-sound on field
             document.getElementById('fieldCanvas').addEventListener('click', () => {
