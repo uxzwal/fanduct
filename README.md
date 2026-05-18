@@ -52,7 +52,7 @@ A complete, standalone HTML/CSS/JS web application that redefines the second-scr
 - **Offline First**: Zero external API dependencies (CDNs only for libraries)
 - **Persistent Storage**: localStorage for leaderboard, emotion timeline, momentum tokens
 - **Styling**: TailwindCSS for responsive UI, FontAwesome for icons
-- **Code Quality**: ~420 lines, well-commented, no external build tools required
+- **Code Quality**: ~500 lines, well-commented, no external build tools required
 
 ## Quick Start
 

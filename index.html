@@ -250,8 +250,8 @@
             // Update active state
             const allPads = document.querySelectorAll('.sound-pad');
             allPads.forEach(p => p.classList.remove('active'));
-            // Only add active class if event target is provided and valid
-            if (evt && evt.target && evt.target.classList) {
+            // Add active class if event target is provided
+            if (evt && evt.target) {
                 evt.target.classList.add('active');
             }
         }
@@ -347,14 +347,14 @@
         function drawGhostArrow(arrow) {
             const canvas = document.getElementById('fieldCanvas');
             if (!canvas) return;
-            const arrow_el = document.createElement('div');
-            arrow_el.className = 'ghost-arrow';
-            arrow_el.style.left = (Math.random() * 80 + 10) + '%';
-            arrow_el.style.top = (Math.random() * 80 + 10) + '%';
-            arrow_el.textContent = arrow;
-            arrow_el.style.color = arrow === '↑' ? '#00ff00' : '#00ffff';
-            document.body.appendChild(arrow_el);
-            setTimeout(() => arrow_el.remove(), 3000);
+            const arrowEl = document.createElement('div');
+            arrowEl.className = 'ghost-arrow';
+            arrowEl.style.left = (Math.random() * 80 + 10) + '%';
+            arrowEl.style.top = (Math.random() * 80 + 10) + '%';
+            arrowEl.textContent = arrow;
+            arrowEl.style.color = arrow === '↑' ? '#00ff00' : '#00ffff';
+            document.body.appendChild(arrowEl);
+            setTimeout(() => arrowEl.remove(), 3000);
         }
 
         // ===== 4. BUTTERFLY MICROPREDICTIONS =====
