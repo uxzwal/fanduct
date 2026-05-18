@@ -66,15 +66,15 @@
                 <i class="fas fa-music mr-2 text-cyan-400"></i> Sound Pads
             </h2>
             <div class="grid grid-cols-3 gap-2 mb-4">
-                <button onclick="selectSound('BOO', event)" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
-                <button onclick="selectSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE CLAP</button>
-                <button onclick="selectSound('OLE', event)" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
-                <button onclick="selectSound('DRUM', event)" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
-                <button onclick="selectSound('WHISTLE', event)" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
-                <button onclick="selectSound('CHANT1', event)" class="sound-pad bg-pink-600 hover:bg-pink-700 rounded font-bold text-sm py-3">CHANT1</button>
-                <button onclick="selectSound('CHANT2', event)" class="sound-pad bg-indigo-600 hover:bg-indigo-700 rounded font-bold text-sm py-3">CHANT2</button>
-                <button onclick="selectSound('AIR HORN', event)" class="sound-pad bg-orange-600 hover:bg-orange-700 rounded font-bold text-sm py-3">AIR HORN</button>
-                <button onclick="selectSound('SILENCE', event)" class="sound-pad bg-gray-600 hover:bg-gray-700 rounded font-bold text-sm py-3">SILENCE</button>
+                <button onclick="setSelectedSound('BOO', event)" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
+                <button onclick="setSelectedSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE CLAP</button>
+                <button onclick="setSelectedSound('OLE', event)" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
+                <button onclick="setSelectedSound('DRUM', event)" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
+                <button onclick="setSelectedSound('WHISTLE', event)" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
+                <button onclick="setSelectedSound('CHANT1', event)" class="sound-pad bg-pink-600 hover:bg-pink-700 rounded font-bold text-sm py-3">CHANT1</button>
+                <button onclick="setSelectedSound('CHANT2', event)" class="sound-pad bg-indigo-600 hover:bg-indigo-700 rounded font-bold text-sm py-3">CHANT2</button>
+                <button onclick="setSelectedSound('AIR HORN', event)" class="sound-pad bg-orange-600 hover:bg-orange-700 rounded font-bold text-sm py-3">AIR HORN</button>
+                <button onclick="setSelectedSound('SILENCE', event)" class="sound-pad bg-gray-600 hover:bg-gray-700 rounded font-bold text-sm py-3">SILENCE</button>
             </div>
             <div class="text-sm text-gray-300 mb-2">Selected: <span id="selectedSound" class="font-bold text-cyan-400">None</span></div>
             <div id="soundTagsList" class="text-xs text-gray-400 max-h-24 overflow-y-auto bg-slate-900 rounded p-2"></div>
@@ -182,7 +182,8 @@
             hapticInterval: null,
             fieldInterval: null,
             currentStoryline: 0,
-            ballPos: null
+            ballPos: null,
+            audioCtx: null
         };
 
         const storylines = ['TENSION BUILD', 'CLIMAX', 'RELIEF'];
@@ -228,14 +229,22 @@
         }
 
         function replayEmotion() {
-            if (state.emotions.length === 0) { alert('No emotions recorded!'); return; }
+            if (state.emotions.length === 0) { showNotification('No emotions recorded!'); return; }
             const durations = state.emotions.slice(-5).map(e => Math.ceil(e.val / 10) * 50);
             if (navigator.vibrate) navigator.vibrate(durations);
-            alert('Emotion replayed! ✨');
+            showNotification('Emotion replayed! ✨');
+        }
+
+        function showNotification(msg) {
+            const notif = document.createElement('div');
+            notif.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded text-sm';
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
         }
 
         // ===== 2. AUGMENTED AUDIO CANVAS =====
-        function selectSound(sound, evt) {
+        function setSelectedSound(sound, evt) {
             state.selectedSound = sound;
             document.getElementById('selectedSound').textContent = sound;
             // Update active state
@@ -248,11 +257,15 @@
         }
 
         function playSound(sound) {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            // Create AudioContext once and reuse it
+            if (!state.audioCtx) {
+                state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const oscillator = state.audioCtx.createOscillator();
+            const gain = state.audioCtx.createGain();
             oscillator.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(state.audioCtx.destination);
 
             const freqs = {
                 'BOO': 100, 'WAVE CLAP': 440, 'OLE': 528, 'DRUM': 80,
@@ -261,10 +274,10 @@
 
             if (freqs[sound]) {
                 oscillator.frequency.value = freqs[sound];
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.3, state.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.5);
+                oscillator.start(state.audioCtx.currentTime);
+                oscillator.stop(state.audioCtx.currentTime + 0.5);
             }
         }
 
@@ -314,8 +327,6 @@
             ctx.arc(state.ballPos.x, state.ballPos.y, 3, 0, Math.PI * 2);
             ctx.fill();
         }
-
-        state.fieldInterval = setInterval(drawField, FIELD_UPDATE_INTERVAL);
 
         // ===== 3. COLLECTIVE DECISION MOMENTS =====
         function triggerDecisionMoment() {
