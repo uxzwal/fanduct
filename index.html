@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FanDuct - The Sympathetic Nervous System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .live-field { width: 100%; height: 300px; background: linear-gradient(135deg, #1b4d3e 0%, #2d6a52 100%); }
+        .player-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+        .ball { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+        .emotion-bar { height: 4px; background: linear-gradient(90deg, #3b82f6, #ef4444, #10b981); }
+        .sound-pad { aspect-ratio: 1; transition: all 0.2s; }
+        .sound-pad.active { transform: scale(0.95); opacity: 0.7; }
+        .ghost-arrow { position: absolute; font-size: 3rem; animation: fadeOut 3s forwards; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes pulse-vibrate { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-slate-900 text-white">
+    <div class="min-h-screen p-4 pb-20">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold mb-2">
+                <i class="fas fa-headphones mr-2"></i>FanDuct
+            </h1>
+            <p class="text-sm text-gray-400">The Sympathetic Nervous System</p>
+            <div class="mt-3 text-lg font-bold text-yellow-400">
+                💎 Momentum: <span id="momentumDisplay">0</span>
+            </div>
+        </div>
+
+        <!-- Live Soccer Match Canvas -->
+        <div class="mb-6">
+            <h2 class="text-lg font-bold mb-2">Live Match</h2>
+            <canvas id="fieldCanvas" class="live-field rounded-lg border-2 border-green-700 w-full"></canvas>
+        </div>
+
+        <!-- 1. Emotion Sync Engine -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-blue-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-heart mr-2 text-red-500"></i> Emotion Sync Engine
+            </h2>
+            <div class="mb-4">
+                <p class="text-sm text-gray-300 mb-2">Listening Status:</p>
+                <div id="emotionVisualizer" class="flex gap-1 h-16 items-end">
+                    <div class="flex-1 bg-red-500 rounded opacity-75"></div>
+                </div>
+            </div>
+            <div class="emotion-bar mb-4" id="emotionTimeline"></div>
+            <div class="flex gap-2">
+                <button onclick="startEmotionSync()" class="flex-1 bg-blue-500 hover:bg-blue-600 py-2 rounded font-bold text-sm">
+                    <i class="fas fa-microphone mr-1"></i> Start Listening
+                </button>
+                <button onclick="replayEmotion()" class="flex-1 bg-purple-500 hover:bg-purple-600 py-2 rounded font-bold text-sm">
+                    <i class="fas fa-redo mr-1"></i> Replay Emotion
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Augmented Audio Canvas -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-cyan-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-music mr-2 text-cyan-400"></i> Sound Pads
+            </h2>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="setSelectedSound('BOO', event)" class="sound-pad bg-red-600 hover:bg-red-700 rounded font-bold text-sm py-3">BOO</button>
+                <button onclick="setSelectedSound('WAVE CLAP', event)" class="sound-pad bg-blue-600 hover:bg-blue-700 rounded font-bold text-sm py-3">WAVE CLAP</button>
+                <button onclick="setSelectedSound('OLE', event)" class="sound-pad bg-green-600 hover:bg-green-700 rounded font-bold text-sm py-3">OLE!</button>
+                <button onclick="setSelectedSound('DRUM', event)" class="sound-pad bg-purple-600 hover:bg-purple-700 rounded font-bold text-sm py-3">DRUM</button>
+                <button onclick="setSelectedSound('WHISTLE', event)" class="sound-pad bg-yellow-600 hover:bg-yellow-700 rounded font-bold text-sm py-3">WHISTLE</button>
+                <button onclick="setSelectedSound('CHANT1', event)" class="sound-pad bg-pink-600 hover:bg-pink-700 rounded font-bold text-sm py-3">CHANT1</button>
+                <button onclick="setSelectedSound('CHANT2', event)" class="sound-pad bg-indigo-600 hover:bg-indigo-700 rounded font-bold text-sm py-3">CHANT2</button>
+                <button onclick="setSelectedSound('AIR HORN', event)" class="sound-pad bg-orange-600 hover:bg-orange-700 rounded font-bold text-sm py-3">AIR HORN</button>
+                <button onclick="setSelectedSound('SILENCE', event)" class="sound-pad bg-gray-600 hover:bg-gray-700 rounded font-bold text-sm py-3">SILENCE</button>
+            </div>
+            <div class="text-sm text-gray-300 mb-2">Selected: <span id="selectedSound" class="font-bold text-cyan-400">None</span></div>
+            <div id="soundTagsList" class="text-xs text-gray-400 max-h-24 overflow-y-auto bg-slate-900 rounded p-2"></div>
+        </div>
+
+        <!-- 3. Collective Decision Moments -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-yellow-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-poll mr-2 text-yellow-400"></i> Decisions
+            </h2>
+            <button onclick="triggerDecisionMoment()" class="w-full bg-yellow-600 hover:bg-yellow-700 py-2 rounded font-bold mb-4">
+                <i class="fas fa-bullhorn mr-1"></i> Trigger Decision
+            </button>
+            <div id="decisionOverlay" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 flex-col gap-4 p-4">
+                <div class="bg-slate-800 rounded-lg p-6 max-w-sm border-2 border-yellow-500">
+                    <p id="decisionQuestion" class="text-lg font-bold mb-4"></p>
+                    <div class="flex gap-4">
+                        <button onclick="voteDecision('A')" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">
+                            <span id="optionALabel"></span>
+                        </button>
+                        <button onclick="voteDecision('B')" class="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded font-bold">
+                            <span id="optionBLabel"></span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4 text-center">Other fans: A: <span id="tallyA">0</span> | B: <span id="tallyB">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Butterfly Micropredictions -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-green-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-magic mr-2 text-green-400"></i> Micropredictions
+            </h2>
+            <div id="predictionWidget" class="bg-slate-700 rounded p-4">
+                <p class="text-sm text-gray-300 mb-3" id="predictionQuestion">Next throw-in direction?</p>
+                <div class="flex gap-3">
+                    <button onclick="makePrediction('UP')" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">⬆️ LINE</button>
+                    <button onclick="makePrediction('RIGHT')" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">➡️ INSIDE</button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3 text-center" id="predictionFeedback"></p>
+        </div>
+
+        <!-- 5. Reality Rewind Collage -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-pink-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-camera mr-2 text-pink-400"></i> Reality Rewind
+            </h2>
+            <button onclick="captureMoment()" class="w-full bg-pink-600 hover:bg-pink-700 py-2 rounded font-bold mb-4">
+                <i class="fas fa-image mr-1"></i> Capture Last 10s
+            </button>
+            <div id="capturePreview" class="hidden bg-slate-900 rounded p-3 mb-3">
+                <canvas id="captureCanvas" class="w-full rounded border border-pink-600 mb-2"></canvas>
+                <div id="waveformDisplay" class="h-12 flex items-end gap-1 bg-slate-800 rounded p-2 mb-2">
+                    <!-- Simulated waveform -->
+                </div>
+                <a id="downloadLink" href="#" download="fanduct-moment.png" class="block text-center bg-pink-600 hover:bg-pink-700 py-1 rounded text-sm font-bold">
+                    <i class="fas fa-download mr-1"></i> Download Card
+                </a>
+            </div>
+        </div>
+
+        <!-- 6. Haptic Storyline -->
+        <div class="bg-slate-800 rounded-lg p-4 mb-6 border-2 border-red-500">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-heart-pulse mr-2 text-red-500"></i> Haptic Storyline
+            </h2>
+            <div class="text-center mb-4">
+                <p class="text-sm text-gray-400 mb-1">Current Arc</p>
+                <p id="storylineArc" class="text-2xl font-bold text-red-400">TENSION BUILD</p>
+            </div>
+            <button onclick="toggleHaptics()" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">
+                <i class="fas fa-mobile mr-1"></i> <span id="hapticToggle">Enable</span> Haptics
+            </button>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-slate-800 rounded-lg p-4 border-2 border-orange-500">
+            <h2 class="text-lg font-bold mb-3 flex items-center">
+                <i class="fas fa-trophy mr-2 text-orange-400"></i> Leaderboard
+            </h2>
+            <div id="leaderboard" class="text-sm space-y-2">
+                <p class="text-gray-400">No entries yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONSTANTS & STATE =====
+        const EMOTION_UPDATE_INTERVAL = 5000;
+        const STORYLINE_UPDATE_INTERVAL = 30000;
+        const PREDICTION_RESOLUTION_DELAY = 10000;
+        const FIELD_UPDATE_INTERVAL = 200;
+
+        let state = {
+            momentum: parseInt(localStorage.getItem('momentum')) || 0,
+            emotions: JSON.parse(localStorage.getItem('emotions')) || [],
+            soundTags: JSON.parse(localStorage.getItem('soundTags')) || [],
+            leaderboard: JSON.parse(localStorage.getItem('leaderboard')) || [],
+            selectedSound: null,
+            isListening: false,
+            hapticsEnabled: false,
+            emotionInterval: null,
+            hapticInterval: null,
+            fieldInterval: null,
+            currentStoryline: 0,
+            ballPos: null,
+            audioCtx: null
+        };
+
+        const storylines = ['TENSION BUILD', 'CLIMAX', 'RELIEF'];
+        const decisions = [
+            { q: 'VAR Check – Penalty?', opt: ['YES', 'NO'] },
+            { q: 'Corner – Short or Long?', opt: ['SHORT', 'LONG'] },
+            { q: 'Goal Line – In or Out?', opt: ['IN', 'OUT'] }
+        ];
+
+        // ===== 1. EMOTION SYNC ENGINE =====
+        function startEmotionSync() {
+            state.isListening = !state.isListening;
+            if (state.isListening) {
+                // Clear any existing interval
+                if (state.emotionInterval) clearInterval(state.emotionInterval);
+                state.emotionInterval = setInterval(() => {
+                    if (!state.isListening) { 
+                        clearInterval(state.emotionInterval);
+                        state.emotionInterval = null;
+                        return;
+                    }
+                    const spike = Math.floor(Math.random() * 100);
+                    state.emotions.push({ val: spike, time: Date.now() });
+                    updateEmotionVisualization();
+                }, EMOTION_UPDATE_INTERVAL);
+            } else if (state.emotionInterval) {
+                clearInterval(state.emotionInterval);
+                state.emotionInterval = null;
+            }
+        }
+
+        function updateEmotionVisualization() {
+            const viz = document.getElementById('emotionVisualizer');
+            viz.innerHTML = '';
+            state.emotions.slice(-8).forEach(e => {
+                const bar = document.createElement('div');
+                bar.className = 'flex-1 rounded';
+                bar.style.height = e.val + '%';
+                bar.style.background = e.val > 70 ? '#ef4444' : e.val > 40 ? '#eab308' : '#3b82f6';
+                viz.appendChild(bar);
+            });
+            localStorage.setItem('emotions', JSON.stringify(state.emotions));
+        }
+
+        function replayEmotion() {
+            if (state.emotions.length === 0) { showNotification('No emotions recorded!'); return; }
+            const durations = state.emotions.slice(-5).map(e => Math.ceil(e.val / 10) * 50);
+            if (navigator.vibrate) navigator.vibrate(durations);
+            showNotification('Emotion replayed! ✨');
+        }
+
+        function showNotification(msg) {
+            const notif = document.createElement('div');
+            notif.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded text-sm';
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        }
+
+        // ===== 2. AUGMENTED AUDIO CANVAS =====
+        function setSelectedSound(sound, evt) {
+            state.selectedSound = sound;
+            document.getElementById('selectedSound').textContent = sound;
+            // Update active state
+            const allPads = document.querySelectorAll('.sound-pad');
+            allPads.forEach(p => p.classList.remove('active'));
+            // Add active class if event target is provided
+            if (evt && evt.target) {
+                evt.target.classList.add('active');
+            }
+        }
+
+        function playSound(sound) {
+            // Create AudioContext once and reuse it
+            if (!state.audioCtx) {
+                state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const oscillator = state.audioCtx.createOscillator();
+            const gain = state.audioCtx.createGain();
+            oscillator.connect(gain);
+            gain.connect(state.audioCtx.destination);
+
+            const freqs = {
+                'BOO': 100, 'WAVE CLAP': 440, 'OLE': 528, 'DRUM': 80,
+                'WHISTLE': 800, 'CHANT1': 220, 'CHANT2': 330, 'AIR HORN': 1200
+            };
+
+            if (freqs[sound]) {
+                oscillator.frequency.value = freqs[sound];
+                gain.gain.setValueAtTime(0.3, state.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.5);
+                oscillator.start(state.audioCtx.currentTime);
+                oscillator.stop(state.audioCtx.currentTime + 0.5);
+            }
+        }
+
+        // ===== FIELD CANVAS ANIMATION =====
+        function drawField() {
+            const canvas = document.getElementById('fieldCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            // Initialize ball position on first draw
+            if (!state.ballPos) {
+                state.ballPos = { x: canvas.width / 2, y: canvas.height / 2 };
+            }
+
+            // Draw field
+            ctx.fillStyle = '#1b4d3e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.rect(10, 10, canvas.width - 20, canvas.height - 20);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 10);
+            ctx.lineTo(canvas.width / 2, canvas.height - 10);
+            ctx.stroke();
+
+            // Draw players with responsive positioning
+            const playerCount = 11;
+            for (let i = 0; i < playerCount; i++) {
+                ctx.fillStyle = i < 6 ? '#ff0000' : '#0000ff';
+                ctx.beginPath();
+                const xPos = (canvas.width / (playerCount + 1)) * (i + 1);
+                const yPos = (canvas.height / 2) + Math.sin(Date.now() / 500 + i) * 15;
+                ctx.arc(xPos, yPos, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw ball
+            state.ballPos.x += (Math.random() - 0.5) * 3;
+            state.ballPos.y += (Math.random() - 0.5) * 3;
+            state.ballPos.x = Math.max(30, Math.min(canvas.width - 30, state.ballPos.x));
+            state.ballPos.y = Math.max(30, Math.min(canvas.height - 30, state.ballPos.y));
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(state.ballPos.x, state.ballPos.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ===== 3. COLLECTIVE DECISION MOMENTS =====
+        function triggerDecisionMoment() {
+            const d = decisions[Math.floor(Math.random() * decisions.length)];
+            document.getElementById('decisionQuestion').textContent = d.q;
+            document.getElementById('optionALabel').textContent = d.opt[0];
+            document.getElementById('optionBLabel').textContent = d.opt[1];
+            document.getElementById('tallyA').textContent = Math.floor(Math.random() * 1000);
+            document.getElementById('tallyB').textContent = Math.floor(Math.random() * 1000);
+            document.getElementById('decisionOverlay').classList.remove('hidden');
+        }
+
+        function voteDecision(choice) {
+            document.getElementById('decisionOverlay').classList.add('hidden');
+            drawGhostArrow(choice === 'A' ? '↑' : '→');
+        }
+
+        function drawGhostArrow(arrow) {
+            const canvas = document.getElementById('fieldCanvas');
+            if (!canvas) return;
+            const arrowEl = document.createElement('div');
+            arrowEl.className = 'ghost-arrow';
+            arrowEl.style.left = (Math.random() * 80 + 10) + '%';
+            arrowEl.style.top = (Math.random() * 80 + 10) + '%';
+            arrowEl.textContent = arrow;
+            arrowEl.style.color = arrow === '↑' ? '#00ff00' : '#00ffff';
+            document.body.appendChild(arrowEl);
+            setTimeout(() => arrowEl.remove(), 3000);
+        }
+
+        // ===== 4. BUTTERFLY MICROPREDICTIONS =====
+        function makePrediction(direction) {
+            const prediction = {
+                choice: direction,
+                time: Date.now(),
+                result: Math.random() > 0.5
+            };
+            setTimeout(() => {
+                const msg = prediction.result ? '✅ Correct!' : '❌ Oops!';
+                document.getElementById('predictionFeedback').textContent = msg;
+                if (prediction.result) {
+                    state.momentum += 10;
+                    saveMomentum();
+                }
+            }, PREDICTION_RESOLUTION_DELAY);
+        }
+
+        // ===== 5. REALITY REWIND COLLAGE =====
+        function captureMoment() {
+            const canvas = document.getElementById('fieldCanvas');
+            if (!canvas) return;
+            document.getElementById('capturePreview').classList.remove('hidden');
+            const captureCanvas = document.getElementById('captureCanvas');
+            const ctx = captureCanvas.getContext('2d');
+            captureCanvas.width = canvas.width;
+            captureCanvas.height = canvas.height;
+            ctx.drawImage(canvas, 0, 0);
+            
+            // Draw waveform
+            const waveform = document.getElementById('waveformDisplay');
+            waveform.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.style.flex = '1';
+                bar.style.height = (Math.random() * 100) + '%';
+                bar.style.background = '#3b82f6';
+                bar.style.borderRadius = '2px';
+                waveform.appendChild(bar);
+            }
+
+            // Generate download link with blob URL management
+            captureCanvas.toBlob(blob => {
+                const downloadLink = document.getElementById('downloadLink');
+                const oldUrl = downloadLink.href;
+                // Only revoke if it's actually a blob URL (not "#")
+                if (oldUrl && oldUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(oldUrl);
+                }
+                // Create and set new URL
+                downloadLink.href = URL.createObjectURL(blob);
+            });
+        }
+
+        // ===== 6. HAPTIC STORYLINE =====
+        function toggleHaptics() {
+            state.hapticsEnabled = !state.hapticsEnabled;
+            document.getElementById('hapticToggle').textContent = state.hapticsEnabled ? 'Disable' : 'Enable';
+            if (state.hapticsEnabled) {
+                startHapticLoop();
+            } else if (state.hapticInterval) {
+                clearInterval(state.hapticInterval);
+                state.hapticInterval = null;
+            }
+        }
+
+        function startHapticLoop() {
+            // Clear any existing interval
+            if (state.hapticInterval) clearInterval(state.hapticInterval);
+            
+            state.hapticInterval = setInterval(() => {
+                if (!state.hapticsEnabled) { 
+                    clearInterval(state.hapticInterval);
+                    state.hapticInterval = null;
+                    return;
+                }
+                state.currentStoryline = (state.currentStoryline + 1) % 3;
+                document.getElementById('storylineArc').textContent = storylines[state.currentStoryline];
+
+                if (navigator.vibrate) {
+                    const patterns = {
+                        0: [100, 200, 100],  // Tension
+                        1: [500],             // Climax
+                        2: [150, 100, 150]   // Relief
+                    };
+                    navigator.vibrate(patterns[state.currentStoryline]);
+                }
+            }, STORYLINE_UPDATE_INTERVAL);
+        }
+
+        // ===== SOUND TAGS & STORAGE =====
+        function addSoundTag(sound) {
+            state.soundTags.push({ sound, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('soundTags', JSON.stringify(state.soundTags));
+            updateSoundTagsList();
+        }
+
+        function updateSoundTagsList() {
+            const list = document.getElementById('soundTagsList');
+            list.innerHTML = state.soundTags.slice(-5).reverse().map(t => 
+                `<div><strong>${t.sound}</strong> @ ${t.time}</div>`
+            ).join('');
+        }
+
+        function saveMomentum() {
+            localStorage.setItem('momentum', state.momentum);
+            document.getElementById('momentumDisplay').textContent = state.momentum;
+        }
+
+        // ===== CLEANUP & INIT =====
+        window.addEventListener('beforeunload', () => {
+            // Clean up intervals
+            if (state.emotionInterval) clearInterval(state.emotionInterval);
+            if (state.hapticInterval) clearInterval(state.hapticInterval);
+            if (state.fieldInterval) clearInterval(state.fieldInterval);
+            // Revoke blob URLs
+            const downloadLink = document.getElementById('downloadLink');
+            if (downloadLink && downloadLink.href && downloadLink.href.startsWith('blob:')) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('momentumDisplay').textContent = state.momentum;
+            updateEmotionVisualization();
+            updateSoundTagsList();
+            
+            // Initialize field animation after DOM is ready
+            state.fieldInterval = setInterval(drawField, FIELD_UPDATE_INTERVAL);
+            
+            // Add click-to-play-sound on field
+            document.getElementById('fieldCanvas').addEventListener('click', () => {
+                if (state.selectedSound) {
+                    playSound(state.selectedSound);
+                    addSoundTag(state.selectedSound);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
